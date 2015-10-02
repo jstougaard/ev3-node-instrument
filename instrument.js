@@ -1,14 +1,14 @@
 var ev3dev = require('ev3dev'),
-    BangSensor = require('./BangSensor');
+    BangEventWatcher = require('./BangEventWatcher');
 
 
 var id = "lead";
 
-console.log("Running EV3 instrument", id);
+console.log("Running EV3 instrument", id, ev3dev.ports.INPUT_1);
 
 
-var bang = new BangSensor(ev3dev.ports.INPUT_1);
+var bangWatcher = new BangEventWatcher(ev3dev.ports.INPUT_1);
 
-bang.addListener("state_change", function(newState) {
+bangWatcher.addListener("state_change", function(newState) {
     console.log( newState ? "Note on" : "Note off");
 });
