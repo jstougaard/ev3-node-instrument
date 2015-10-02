@@ -59,7 +59,7 @@ var handlers = {
             for (var i=this.values.length; i <= this.avgSampleSize; i++) {
                 this.values.push(value);
             }
-            
+
             if (this.values.length > this.avgSampleSize) {
                 this.values.shift();
             }
