@@ -30,5 +30,9 @@ module.exports = {
 
     handlerExists: function(driverName, availableHandlers) {
         return this.getHandlerID(driverName) && availableHandlers[ this.getHandlerID(driverName) ];
+    },
+
+    negativeFriendlyModulo: function(number, mod) {
+        return ((number % mod) + mod) % mod;
     }
 };

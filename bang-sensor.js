@@ -23,7 +23,7 @@ var handlers = {
     },
 
     ultra_sonic: {
-        threshold: 40,
+        threshold: 60,
         getCurrentState: function() {
             return sensor.getValue(valueIndex) < this.threshold;
         }
@@ -90,11 +90,19 @@ var handlers = {
 var sensor = null;
 
 var valueWhenNoSensorAvailable = false;
+var fallbackHandler = {
+    getCurrentState: function() {
+        return valueWhenNoSensorAvailable;
+    }
+};
 
 var valueIndex = 0; // Seems to be the same for all sensors
 
-function getHandler(driverName) {
-    return sensorUtils.getHandler(driverName, handlers);
+function getHandler() {
+    if (sensor && sensor.connected) {
+        return sensorUtils.getHandler(sensor.driverName, handlers) || fallbackHandler;
+    }
+    return fallbackHandler;
 }
 
 module.exports = {
@@ -107,8 +115,14 @@ module.exports = {
     initSensor: function(port) {
         sensor = new ev3dev.Sensor(port);
 
-        if (sensor.connected && getHandler(sensor.driverName).mode) {
-            sensor.mode = getHandler(sensor.driverName).mode;
+        var handler = getHandler();
+        if (handler.mode) {
+            try {
+                sensor.mode = handler.mode;
+            } catch (e) {
+                console.log("Could not set mod - resetting sensor");
+                sensor = null;
+            }
         }
     },
 
@@ -116,10 +130,8 @@ module.exports = {
 
         try {
 
-            var handler = getHandler(sensor.driverName);
-            if (handler) {
-                return handler.getCurrentState();
-            }
+            var handler = getHandler();
+            return handler.getCurrentState();
 
         } catch (e) {
             // No sensor
