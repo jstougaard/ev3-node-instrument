@@ -10,9 +10,9 @@ function SoundSelector(port) {
     this.port = port;
     this.motor = null;
     this.initialPosition = null;
-    this.currentSound = 1; // TODO: Get from server
+    this.currentSound = 1;
     this.initialSound = this.currentSound;
-    this.numberOfSounds = 10; // TODO: Consider grabbing this from server
+    this.numberOfSounds = 10;
 
     this.watchMotorPosition();
 }

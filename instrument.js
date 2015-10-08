@@ -1,26 +1,24 @@
 #!/usr/bin/env node
 
-console.log("STARTING...");
+var id = process.argv[2] || "lead1";
 
-var websocketIP = process.argv[2] || "10.11.98.8",
-    websocketPort = process.argv[3] || "3000";
+console.log("STARTING...", id.toUpperCase());
 
-var socket = require('socket.io-client')('http://'+websocketIP+':'+websocketPort);
+console.log("Loading dependencies...");
+require('dotenv').load({path: '/home/instrument/.env'}); // Loading environment variables
 var ev3dev = require('ev3dev'),
     BangEventWatcher = require('./BangEventWatcher'),
     PitchSensorWatcher = require('./PitchSensorWatcher'),
     PitchSensor = require('./PitchSensor'),
     SoundSelector = require('./SoundSelector');
 
+console.log("Starting socket.io...");
+var socket = require('socket.io-client')('http://'+process.env.WEBSOCKET_IP+':'+process.env.WEBSOCKET_PORT);
 socket.on('connect', function() { console.log("Socket connected"); });
 socket.on('disconnect', function() { console.log("Socket disconnected!"); });
 socket.on('connect_error', function(err) { console.error("Socket connection error", err); });
 socket.on('connect_timeout', function() { console.log("Socket connect timeout"); });
 
-
-var id = "lead1";
-
-console.log("EV3 instrument", id.toUpperCase());
 
 var bangWatcher = new BangEventWatcher(ev3dev.ports.INPUT_1);
 var pitchSensor = new PitchSensor(ev3dev.ports.INPUT_2);
@@ -90,6 +88,11 @@ socket.on("start-beat", function() {
 socket.on("stop-beat", function() {
     isPlaying = false;
     console.log("Party over!");
+});
+socket.on(id + "/init-lead", function(currentSound, numberOfSounds) {
+    console.log("Init lead", currentSound, numberOfSounds);
+    soundSelector.currentSound = currentSound;
+    soundSelector.numberOfSounds = numberOfSounds;
 });
 
 process.on('uncaughtException', function (err) {
