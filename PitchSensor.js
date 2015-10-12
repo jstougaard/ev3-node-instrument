@@ -106,6 +106,10 @@ PitchSensor.prototype.isActive = function() {
     }
 };
 
+PitchSensor.prototype.isConnected = function() {
+    return this.sensor && this.sensor.connected;
+}
+
 PitchSensor.prototype._readSensor = function() {
     if (!this.sensor || !this.sensor.connected) {
         this._initSensor();
@@ -115,7 +119,7 @@ PitchSensor.prototype._readSensor = function() {
 };
 
 PitchSensor.prototype._isSensorActive = function() {
-    if (!this.sensor || !this.sensor.connected) {
+    if (!this.isConnected()) {
         this._initSensor();
     }
 
@@ -135,7 +139,7 @@ PitchSensor.prototype._initSensorMode = function() {
 };
 
 PitchSensor.prototype._getHandler = function() {
-    if (this.sensor && this.sensor.connected) {
+    if (this.isConnected()) {
         return sensorUtils.getHandler(this.sensor.driverName, handlers) || fallbackHandler;
     }
     return fallbackHandler;

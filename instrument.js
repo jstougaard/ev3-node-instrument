@@ -23,6 +23,8 @@ socket.on('connect_timeout', function() { console.log("Socket connect timeout");
 var bangWatcher = new BangEventWatcher(ev3dev.ports.INPUT_1);
 var pitchSensor = new PitchSensor(ev3dev.ports.INPUT_2);
 var secondaryPitch = new PitchSensorWatcher(ev3dev.ports.INPUT_3);
+var pitchShiftSensor = new PitchSensorWatcher(ev3dev.ports.INPUT_4);
+
 
 var soundSelector = new SoundSelector();
 soundSelector.addListener("sound_change", function(newSound) {
@@ -65,6 +67,8 @@ function playNotes() {
 }
 
 function doPlayNotes(notes) {
+    notes = pitchShiftNotes(notes);
+
     console.log("Note on", notes);
     socket.emit(id + "/start-notes", notes);
     notesPlaying = notesPlaying.concat(notes);
@@ -74,6 +78,26 @@ function doStopNotes() {
     if (notesPlaying.length > 0) {
         socket.emit(id + "/stop-notes", notesPlaying);
         notesPlaying = [];
+    }
+}
+
+var pitchShiftValue = 0;
+function pitchShiftNotes(notes) {
+    if (pitchShiftSensor.isConnected()) {
+        // Get shift value
+        if (pitchShiftSensor.isActive()) {
+            pitchShiftValue = pitchShiftSensor.getCurrentNote() - 1; // Current note is 1-based; make shift 0-based
+        }
+
+        // Add shift to notes
+        return notes.map(function(note) {
+            return note + pitchShiftValue;
+        });
+
+    } else {
+        // No sensor connected
+        pitchShiftValue = 0;
+        return notes;
     }
 }
 
@@ -93,6 +117,9 @@ socket.on(id + "/init-lead", function(currentSound, numberOfSounds) {
     console.log("Init lead", currentSound, numberOfSounds);
     soundSelector.currentSound = currentSound;
     soundSelector.numberOfSounds = numberOfSounds;
+});
+socket.on("ping", function() {
+    socket.emit("pong", id);
 });
 
 process.on('uncaughtException', function (err) {

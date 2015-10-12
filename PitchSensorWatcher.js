@@ -7,6 +7,7 @@ function PitchSensorWatcher(port, updateInterval, idleInterval) {
     this.updateInterval = updateInterval || 100;
     this.idleInterval = idleInterval || 1000;
 
+    this.connected = false;
     this.active = false;
     this.note = null;
 
@@ -34,6 +35,10 @@ PitchSensorWatcher.prototype.isActive = function() {
     return this.active;
 };
 
+PitchSensorWatcher.prototype.isConnected = function() {
+  return this.connected;
+};
+
 PitchSensorWatcher.prototype.getCurrentNote = function() {
     return this.note;
 };
@@ -47,6 +52,8 @@ PitchSensorWatcher.prototype.checkSensor = function() {
     } else {
         this.note = null;
     }
+
+    this.connected = this.sensor.isConnected();
 
     this.timer = setTimeout(this.checkSensor.bind(this), ( this.isActive() ? this.updateInterval : this.idleInterval ));
 };
