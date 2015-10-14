@@ -15,7 +15,7 @@ sudo dd if=~/Downloads/ev3dev.1900MB.img of=/dev/rdisk2 bs=4m
 3. Copy project including node_modules (but not starters) into /home/instrument on EV3 device
 4. Copy files in `starters` to /home
 5. SSH into device `ssh root@DEVICE_IP`
-6. Make starter files executable `chmod -x LEAD1.sh LEAD2.sh LEAD3.sh LEAD4.sh LEAD5.sh LEAD6.sh LEAD7.sh LEAD8.sh`
+6. Make starter files executable `chmod +x LEAD1.sh LEAD2.sh LEAD3.sh LEAD4.sh LEAD5.sh LEAD6.sh LEAD7.sh LEAD8.sh`
 7. Change file owner
     - chown -R user:user /home/instrument
     - chown user:user LEAD1.sh LEAD2.sh LEAD3.sh LEAD4.sh LEAD5.sh LEAD6.sh LEAD7.sh LEAD8.sh;
