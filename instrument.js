@@ -14,14 +14,14 @@ var ev3dev = require('ev3dev'),
 
 console.log("Starting socket.io...");
 var socket = require('socket.io-client')('http://'+process.env.WEBSOCKET_IP+':'+process.env.WEBSOCKET_PORT);
+console.log("Waiting for connection...");
 socket.on('connect', function() { console.log("Socket connected"); });
 socket.on('disconnect', function() { console.log("Socket disconnected!"); });
 socket.on('connect_error', function(err) { console.error("Socket connection error", err); });
 socket.on('connect_timeout', function() { console.log("Socket connect timeout"); });
 
-
-var bangWatcher = new BangEventWatcher(ev3dev.ports.INPUT_1);
-var pitchSensor = new PitchSensor(ev3dev.ports.INPUT_2);
+var pitchSensor = new PitchSensor(ev3dev.ports.INPUT_1);
+var bangWatcher = new BangEventWatcher(ev3dev.ports.INPUT_2);
 var secondaryPitch = new PitchSensorWatcher(ev3dev.ports.INPUT_3);
 var pitchShiftSensor = new PitchSensorWatcher(ev3dev.ports.INPUT_4);
 
@@ -81,13 +81,10 @@ function doStopNotes() {
     }
 }
 
-var pitchShiftValue = 0;
 function pitchShiftNotes(notes) {
-    if (pitchShiftSensor.isConnected()) {
+    if (pitchShiftSensor.isConnected() && pitchShiftSensor.getLastActiveNote() !== 0) {
         // Get shift value
-        if (pitchShiftSensor.isActive()) {
-            pitchShiftValue = pitchShiftSensor.getCurrentNote() - 1; // Current note is 1-based; make shift 0-based
-        }
+        var pitchShiftValue = pitchShiftSensor.getLastActiveNote() - 1; // Current note is 1-based; make shift 0-based
 
         // Add shift to notes
         return notes.map(function(note) {
@@ -96,7 +93,6 @@ function pitchShiftNotes(notes) {
 
     } else {
         // No sensor connected
-        pitchShiftValue = 0;
         return notes;
     }
 }
@@ -126,4 +122,5 @@ process.on('uncaughtException', function (err) {
     // TODO: The brick is dead! Alert us through the server!!
     console.log("Uncaught Exception", err);
     console.log(err.stack);
+    socket.disconnect();
 });

@@ -10,6 +10,7 @@ function PitchSensorWatcher(port, updateInterval, idleInterval) {
     this.connected = false;
     this.active = false;
     this.note = null;
+    this.lastActiveNote = 0;
 
     this.sensor = new PitchSensor(port);
 
@@ -43,12 +44,17 @@ PitchSensorWatcher.prototype.getCurrentNote = function() {
     return this.note;
 };
 
+PitchSensorWatcher.prototype.getLastActiveNote = function() {
+    return this.lastActiveNote;
+}
+
 PitchSensorWatcher.prototype.checkSensor = function() {
 
     this.active = this.sensor.isActive();
 
     if (this.isActive()) {
         this.note = this.sensor.getCurrentNote();
+        this.lastActiveNote = this.note;
     } else {
         this.note = null;
     }

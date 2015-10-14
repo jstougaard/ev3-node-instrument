@@ -5,6 +5,11 @@ Project for running the lead instrument of hitmachine on a LEGO Mindstorms EV3 (
 
 # Getting started
 
+
+diskutil unmountDisk /dev/disk2s1
+
+sudo dd if=~/Downloads/ev3dev.1900MB.img of=/dev/rdisk2 bs=4m
+
 1. Follow getting started guide here: http://www.ev3dev.org/docs/getting-started/ (remember to set up the user)
 2. FTP into the device using root user (host=sftp://DEVICE_IP, user=root, password=r00tme)
 3. Copy project including node_modules (but not starters) into /home/instrument on EV3 device
